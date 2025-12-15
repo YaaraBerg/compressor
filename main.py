@@ -22,12 +22,13 @@ def main() -> None:
             assert original_data == decoded_data, f"Assertion failed for {filename}: decoder(encoder(X)) != X"
 
 
-def lampel_ziv(data: bitarray) -> List[Tuple[int, int, int]]:
+def lampel_ziv(data: bitarray, search_length: int = 1) -> List[Tuple[int, int, int]]:
     """
     Performs Lempel-Ziv (LZ77) compression on a binary array.
 
     Args:
         data (bitarray): The input binary data to be compressed.
+        search_length (int): The maximum length of substrings to search for. Default is 1.
 
     Returns:
         List[Tuple[int, int, int]]: A list of tuples representing the compressed data.
