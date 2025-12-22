@@ -138,9 +138,63 @@ def decoder(compressed_data: bitarray) -> bitarray:
     return convert_lampel_ziv_list_to_binarray(lz_list)
 
 
+def update_csv_header() -> None:
+    """Update the CSV header to include all configuration keys"""
+    config_file = 'configs.csv'
+
+    if not os.path.exists(config_file):
+        return  # New file, header will be created normally
+
+    # Read existing file
+    with open(config_file, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        rows = list(reader)
+
+    if not rows:
+        return  # Empty file
+
+    # Get current header
+    current_header = rows[0]
+    expected_header = ['run_id', 'timestamp'] + ALL_CONFIG_KEYS
+
+    # Check if header needs updating
+    if current_header != expected_header:
+        # Validate that current_header is a prefix of expected_header
+        if len(current_header) > len(expected_header):
+            raise ValueError(
+                f"Cannot update CSV header: current header has more columns than expected.\n"
+                f"Current: {current_header}\n"
+                f"Expected: {expected_header}\n"
+                f"This might indicate data incompatibility."
+            )
+
+        for i, current_col in enumerate(current_header):
+            if current_col != expected_header[i]:
+                raise ValueError(
+                    f"Cannot update CSV header: column mismatch at position {i}.\n"
+                    f"Current: {current_header}\n"
+                    f"Expected: {expected_header}\n"
+                    f"Current column '{current_col}' does not match expected '{expected_header[i]}'.\n"
+                    f"CSV structure is incompatible."
+                )
+
+        print(f"Updating CSV header from {current_header} to {expected_header}")
+
+        # Update header
+        rows[0] = expected_header
+
+        # Rewrite the file with updated header
+        with open(config_file, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(rows)
+
+
 def save_config(run_id: str, config: dict) -> None:
     """Save configuration details for this run to configs.csv"""
     config_file = 'configs.csv'
+
+    # Update CSV header if needed
+    update_csv_header()
 
     # Check if file exists to determine if we need headers
     file_exists = os.path.exists(config_file)
