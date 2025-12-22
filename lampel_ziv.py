@@ -2,19 +2,44 @@ from typing import List, Tuple
 from bitarray import bitarray
 
 
-def convert_binarray_to_lampel_ziv_list(data: bitarray, search_length: int = 1) -> List[Tuple[int, int, int]]:
+def convert_binarray_to_lampel_ziv_list(data: bitarray, search_length: int, match_length: int) -> List[Tuple[int, int, int]]:
     """
     Performs Lempel-Ziv (LZ77) compression on a binary array.
 
     Args:
         data (bitarray): The input binary data to be compressed.
-        search_length (int): The maximum length of substrings to search for. Default is 1.
+        search_length (int): The maximum length of substrings to search for. 
+        match_length (int): The maximum length of a matching substring. 
 
     Returns:
         List[Tuple[int, int, int]]: A list of tuples representing the compressed data.
         Each tuple typically contains (offset, length, next_symbol).
     """
-    pass
+    result = []
+    i = 0
+
+    while i < len(data):
+        match_offset = 0
+        match_length = 0
+
+        # Search for the longest match in the previous data
+        for j in range(max(0, i - search_length), i):
+            length = 0
+            while (length < match_length and i + length < len(data) + 1 and data[j + length] == data[i + length]):
+                length += 1
+
+            if length > match_length:
+                match_length = length
+                match_offset = i - j
+
+        # Next symbol after the match
+        next_symbol = data[i + match_length] if (i + match_length) < len(data) else 0
+
+        # Append the tuple (offset, length, next_symbol)
+        result.append((match_offset, match_length, next_symbol))
+
+        # Move the index forward
+        i += match_length + 1
 
 
 def convert_lampel_ziv_list_to_binarray(lz_list: List[Tuple[int, int, int]]) -> bitarray:
