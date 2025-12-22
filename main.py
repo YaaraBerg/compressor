@@ -3,21 +3,23 @@ import time
 import csv
 from datetime import datetime
 from bitarray import bitarray
+from lampel_ziv import basic_lempel_ziv, convert_lampel_ziv_list_to_binarray
+from nat_encoder import encode_number, decode_number
 
-# Define ALL possible config keys you might use across different experiments
-# Add new keys here as you introduce new parameters
-ALL_CONFIG_KEYS = ['run_name', 'method', 'notes']
+# PAY ATTENTION: add new config keys at the end of this list
+ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length']
+
+CONFIG = {
+    'run_name': 'basic search 256 back with match 32',
+    'method': 'basic_lempel_ziv',
+    'search_length': 256,
+    'match_length': 32,
+    'notes': '',
+}
 
 RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits']
 
-# Configuration flags
-SAVE_COMPRESSED = False  # Set to True if you want to save compressed/decoded files
-
-CONFIG = {
-    'run_name': 'empty_test',
-    'method': 'read_write',
-    'notes': 'check the runner functionality',
-}
+SAVE_COMPRESSED = False  # Set to True if you want to save the decoded files
 
 
 def main() -> None:
@@ -90,7 +92,7 @@ def main() -> None:
 
 def encoder(data: bitarray) -> bitarray:
     """
-    Compresses a bitarray using Lempel-Ziv compression.
+    Compresses a bitarray using Lempel-Ziv compression with nat encoder.
 
     Args:
         data (bitarray): The input binary data to compress.
@@ -98,14 +100,17 @@ def encoder(data: bitarray) -> bitarray:
     Returns:
         bitarray: The compressed binary data.
     """
-    # Very basic encoding: just return the original data for now
-    # In a real implementation, you would use the lampel_ziv function
-    # from lampel_ziv import convert_binarray_to_lampel_ziv_list
-    # lz_list = convert_binarray_to_lampel_ziv_list(data, search_length=CONFIG.get('search_length', 1))
-    # Then encode the lz_list to bitarray using nat_encoder
+    if len(data) == 0:
+        return bitarray()
 
-    # Placeholder: return original data (no compression)
-    return data.copy()
+    lz_list = basic_lempel_ziv(data, **CONFIG)
+    result = bitarray()
+    for offset, length, next_symbol in lz_list:
+        encode_number(result, offset)
+        encode_number(result, length)
+        result.append(next_symbol)
+
+    return result
 
 
 def decoder(compressed_data: bitarray) -> bitarray:
@@ -118,12 +123,19 @@ def decoder(compressed_data: bitarray) -> bitarray:
     Returns:
         bitarray: The decompressed (original) binary data.
     """
-    # Very basic decoding: just return the compressed data for now
-    # In a real implementation, you would decode the nat_encoder data back to lz_list
-    # Then use convert_lampel_ziv_list_to_binarray to reconstruct
+    if len(compressed_data) == 0:
+        return bitarray()
 
-    # Placeholder: return the data as-is (no decompression)
-    return compressed_data.copy()
+    lz_list = []
+    data_copy = compressed_data.copy()
+    while len(data_copy) > 0:
+        offset = decode_number(data_copy)
+        length = decode_number(data_copy)
+        next_symbol = int(data_copy[0])
+        del data_copy[0]
+        lz_list.append((offset, length, next_symbol))
+
+    return convert_lampel_ziv_list_to_binarray(lz_list)
 
 
 def save_config(run_id: str, config: dict) -> None:
