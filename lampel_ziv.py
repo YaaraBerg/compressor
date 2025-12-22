@@ -2,7 +2,7 @@ from typing import List, Tuple
 from bitarray import bitarray
 
 
-def basic_lempel_ziv(data: bitarray, search_length: int, match_length: int) -> List[Tuple[int, int, int]]:
+def basic_lempel_ziv(data: bitarray, search_length: int, match_length: int, **kwargs) -> List[Tuple[int, int, int]]:
     """
     Performs basic Lempel-Ziv compression on a binary array.
 
