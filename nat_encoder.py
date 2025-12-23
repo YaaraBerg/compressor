@@ -16,8 +16,8 @@ def encode_number(bit_data: bitarray, number: int) -> None:
         bit_data.extend([1, number_msb, number_lsb])
         return
     # Bit number: #0 = loglog(n), then log(n), then n
-    logn = math.ceil(math.log2(number))
-    loglogn = math.ceil(math.log2(logn))
+    logn = 1 + math.floor(math.log2(number))
+    loglogn = 1 + math.floor(math.log2(logn))
     bit_data.extend([0] * loglogn)
     bit_data.extend(int2ba(logn))
     bit_data.extend(int2ba(number))

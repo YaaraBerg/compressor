@@ -25,3 +25,9 @@ def test_big_number():
     encode_number(arr, 1000)
     assert decode_number(arr) == 1000
     assert len(arr) == 0
+
+def test_8():
+    arr = bitarray()
+    encode_number(arr, 8)
+    assert decode_number(arr) == 8
+    assert len(arr) == 0
