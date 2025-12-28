@@ -57,7 +57,8 @@ def convert_lampel_ziv_list_to_binarray(lz_list: List[Tuple[int, int, int]]) -> 
     """
     result = bitarray()
     for offset, length, next_symbol in lz_list:
+        head = len(result)
         for i in range(length):
-            result.append(result[-offset + i])
+            result.append(result[head - offset + i])
         result.append(next_symbol)
     return result
