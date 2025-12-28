@@ -1,6 +1,6 @@
 import unittest
 from bitarray import bitarray
-from lampel_ziv import basic_lempel_ziv
+from lampel_ziv import basic_lempel_ziv, convert_lampel_ziv_list_to_binarray
 
 
 class TestBasicLempelZiv(unittest.TestCase):
@@ -60,6 +60,13 @@ class TestBasicLempelZiv(unittest.TestCase):
         result = basic_lempel_ziv(data, 3, 3)
         expected = [(0, 0, 1), (0, 0, 0), (2, 3, 0)]
         self.assertEqual(result, expected)
+
+class MinReproduce(unittest.TestCase):
+    def test_reproduce(self):
+        data = bitarray('01011')
+        lz_triplets = basic_lempel_ziv(data, 256, 32)
+        decoded = convert_lampel_ziv_list_to_binarray(lz_triplets)
+        self.assertEqual(data, decoded)
 
 if __name__ == '__main__':
     unittest.main()
