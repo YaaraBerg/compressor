@@ -9,7 +9,6 @@ def b2ba(data: bytes) -> bitarray:
     return ba
 
 
-
 class TestBasicLempelZiv(unittest.TestCase):
 
     def test_empty_data(self):
