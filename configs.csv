@@ -1,2 +1,3 @@
-run_id,timestamp,run_name,method,notes
+run_id,timestamp,run_name,method,notes,search_length,match_length
 20251218_235633,2025-12-18T23:56:33.657485,empty_test,read_write,check the runner functionality
+20251231_224139,2025-12-31T22:41:39.786687,basic search 256 back with match 32,basic_lempel_ziv,,256,32
