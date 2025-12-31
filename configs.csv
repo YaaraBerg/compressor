@@ -1,3 +1,8 @@
 run_id,timestamp,run_name,method,notes,search_length,match_length
 20251218_235633,2025-12-18T23:56:33.657485,empty_test,read_write,check the runner functionality
 20251231_224139,2025-12-31T22:41:39.786687,basic search 256 back with match 32,basic_lempel_ziv,,256,32
+20251231_224621,2025-12-31T22:46:21.354503,basic search 256 back with match 256,basic_lempel_ziv,,256,256
+20251231_224711,2025-12-31T22:47:11.052576,basic search 256 back with match 256,basic_lempel_ziv,,256,256
+20251231_224801,2025-12-31T22:48:01.904501,basic search,basic_lempel_ziv,,1024,1024
+20251231_225008,2025-12-31T22:50:08.378857,basic search,basic_lempel_ziv,,1024,512
+20251231_225733,2025-12-31T22:57:33.158006,basic search,basic_lempel_ziv,duplicate of 20251231_225008 to see the time diff,1024,512
