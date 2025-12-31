@@ -132,6 +132,7 @@ def decoder(compressed_data: bitarray) -> bitarray:
         offset = decode_number(data_copy)
         length = decode_number(data_copy)
         next_byte = data_copy[:8]
+        del data_copy[:8]
         lz_list.append((offset, length, next_byte))
 
     return convert_lampel_ziv_list_to_binarray(lz_list)
