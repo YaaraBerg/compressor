@@ -3,14 +3,14 @@ from bitarray import bitarray
 from main import encoder, decoder, CONFIG
 
 
+def b2ba(data: bytes) -> bitarray:
+    ba = bitarray()
+    ba.frombytes(data)
+    return ba
+
+
 class TestEncoderDecoder(unittest.TestCase):
     """Comprehensive tests to ensure encoder/decoder consistency: decoder(encoder(X)) == X"""
-
-    def _bytes_to_bitarray(self, data: bytes) -> bitarray:
-        """Helper to convert bytes to bitarray"""
-        ba = bitarray()
-        ba.frombytes(data)
-        return ba
 
     def test_empty_data(self):
         """Test with empty bitarray"""
@@ -21,7 +21,7 @@ class TestEncoderDecoder(unittest.TestCase):
 
     def test_single_byte(self):
         """Test with single byte"""
-        data = self._bytes_to_bitarray(b'A')
+        data = b2ba(b'A')
         compressed = encoder(data)
         decoded = decoder(compressed)
         self.assertEqual(data, decoded)
@@ -40,7 +40,7 @@ class TestEncoderDecoder(unittest.TestCase):
 
         for pattern in patterns:
             with self.subTest(pattern=pattern):
-                data = self._bytes_to_bitarray(pattern)
+                data = b2ba(pattern)
                 compressed = encoder(data)
                 decoded = decoder(compressed)
                 self.assertEqual(data, decoded, f"Failed for pattern: {pattern}")
@@ -60,7 +60,7 @@ class TestEncoderDecoder(unittest.TestCase):
 
         for pattern in patterns:
             with self.subTest(pattern=pattern[:20].decode('utf-8', errors='ignore') + "..."):
-                data = self._bytes_to_bitarray(pattern)
+                data = b2ba(pattern)
                 compressed = encoder(data)
                 decoded = decoder(compressed)
                 self.assertEqual(data, decoded, f"Failed for repeating pattern: {pattern[:20]}...")
@@ -78,7 +78,7 @@ class TestEncoderDecoder(unittest.TestCase):
 
         for pattern in patterns:
             with self.subTest(pattern=pattern):
-                data = self._bytes_to_bitarray(pattern)
+                data = b2ba(pattern)
                 compressed = encoder(data)
                 decoded = decoder(compressed)
                 self.assertEqual(data, decoded, f"Failed for varied pattern: {pattern}")
@@ -92,7 +92,7 @@ class TestEncoderDecoder(unittest.TestCase):
             pattern = (base_text * ((length // len(base_text)) + 1))[:length]
 
             with self.subTest(length=length):
-                data = self._bytes_to_bitarray(pattern)
+                data = b2ba(pattern)
                 compressed = encoder(data)
                 decoded = decoder(compressed)
                 self.assertEqual(data, decoded, f"Failed for length {length}")
@@ -107,7 +107,7 @@ class TestEncoderDecoder(unittest.TestCase):
 
         for name, pattern in test_cases:
             with self.subTest(case=name):
-                data = self._bytes_to_bitarray(pattern)
+                data = b2ba(pattern)
                 compressed = encoder(data)
                 decoded = decoder(compressed)
                 self.assertEqual(data, decoded, f"Failed for {name}")
