@@ -105,17 +105,17 @@ def encoder(data: bitarray) -> bitarray:
 
     lz_list = basic_lempel_ziv(data, **CONFIG)
     result = bitarray()
-    for offset, length, next_symbol in lz_list:
+    for offset, length, next_byte in lz_list:
         encode_number(result, offset)
         encode_number(result, length)
-        result.append(next_symbol)
+        result.extend(next_byte)
 
     return result
 
 
 def decoder(compressed_data: bitarray) -> bitarray:
     """
-    Decompresses a bitarray that was compressed with the encoder function.
+    Decompresses a bitarray that was compressed with the byte-level encoder function.
 
     Args:
         compressed_data (bitarray): The compressed binary data.
@@ -131,9 +131,8 @@ def decoder(compressed_data: bitarray) -> bitarray:
     while len(data_copy) > 0:
         offset = decode_number(data_copy)
         length = decode_number(data_copy)
-        next_symbol = int(data_copy[0])
-        del data_copy[0]
-        lz_list.append((offset, length, next_symbol))
+        next_byte = data_copy[:8]
+        lz_list.append((offset, length, next_byte))
 
     return convert_lampel_ziv_list_to_binarray(lz_list)
 
