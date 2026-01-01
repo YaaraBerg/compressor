@@ -3,19 +3,21 @@ import time
 import csv
 from datetime import datetime
 from bitarray import bitarray
-from lampel_ziv import basic_lempel_ziv, convert_lampel_ziv_list_to_binarray
+from lampel_ziv import convert_lampel_ziv_list_to_binarray
+from hashed_lampel_ziv import hashed_lempel_ziv
 from nat_encoder import encode_number, decode_number, SMALL_NUMBER_BITS
 
 # PAY ATTENTION: add new config keys at the end of this list
-ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length', 'small_number_bits']
+ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length', 'small_number_bits', 'minimum_match_length']
 
 CONFIG = {
-    'run_name': 'basic search with nat encoder const',
-    'method': 'basic_lempel_ziv',
-    'search_length': 512,
-    'match_length': 512,
+    'run_name': 'hashed lempel ziv (key of 3)',
+    'method': 'hashed_lempel_ziv',
+    'search_length': 1024,
+    'match_length': 1024,
     'notes': '',
-    'small_number_bits': SMALL_NUMBER_BITS
+    'small_number_bits': SMALL_NUMBER_BITS,
+    'minimum_match_length': 2
 }
 
 RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits', 'compression_ratio']
@@ -108,7 +110,7 @@ def encoder(data: bitarray) -> bitarray:
     if len(data) == 0:
         return bitarray()
 
-    lz_list = basic_lempel_ziv(data, **CONFIG)
+    lz_list = hashed_lempel_ziv(data, **CONFIG)
     result = bitarray()
     for offset, length, next_byte in lz_list:
         encode_number(result, offset)
