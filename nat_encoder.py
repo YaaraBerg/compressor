@@ -5,7 +5,7 @@ from bitarray import bitarray
 from bitarray.util import ba2int, int2ba
 import math
 
-SMALL_NUMBER_BITS = 5
+SMALL_NUMBER_BITS = 3
 
 def encode_number(bit_data: bitarray, number: int) -> None:
     if number < 0:
