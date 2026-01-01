@@ -4,17 +4,18 @@ import csv
 from datetime import datetime
 from bitarray import bitarray
 from lampel_ziv import basic_lempel_ziv, convert_lampel_ziv_list_to_binarray
-from nat_encoder import encode_number, decode_number
+from nat_encoder import encode_number, decode_number, SMALL_NUMBER_BITS
 
 # PAY ATTENTION: add new config keys at the end of this list
-ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length']
+ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length', 'small_number_bits']
 
 CONFIG = {
-    'run_name': 'basic search 256 back with match 32',
+    'run_name': 'basic search with nat encoder const',
     'method': 'basic_lempel_ziv',
-    'search_length': 256,
-    'match_length': 32,
+    'search_length': 512,
+    'match_length': 512,
     'notes': '',
+    'small_number_bits': SMALL_NUMBER_BITS
 }
 
 RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits']
