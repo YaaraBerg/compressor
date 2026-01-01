@@ -1,4 +1,4 @@
-run_id,timestamp,run_name,method,notes,search_length,match_length,small_number_bits
+run_id,timestamp,run_name,method,notes,search_length,match_length,small_number_bits,minimum_match_length
 20251218_235633,2025-12-18T23:56:33.657485,empty_test,read_write,check the runner functionality
 20251231_224139,2025-12-31T22:41:39.786687,basic search 256 back with match 32,basic_lempel_ziv,,256,32,2
 20251231_224621,2025-12-31T22:46:21.354503,basic search 256 back with match 256,basic_lempel_ziv,,256,256,2
@@ -9,3 +9,5 @@ run_id,timestamp,run_name,method,notes,search_length,match_length,small_number_b
 20260101_191647,2026-01-01T19:16:47.159752,basic search with nat encoder const,basic_lempel_ziv,,512,512,3
 20260101_191814,2026-01-01T19:18:14.319033,basic search with nat encoder const,basic_lempel_ziv,,512,512,4
 20260101_191848,2026-01-01T19:18:48.797113,basic search with nat encoder const,basic_lempel_ziv,,512,512,5
+20260101_195900,2026-01-01T19:59:00.448848,hashed lempel ziv (key of 3),hashed_lempel_ziv,,1024,1024,3,3
+20260101_195923,2026-01-01T19:59:23.159003,hashed lempel ziv (key of 2),hashed_lempel_ziv,,1024,1024,3,2
