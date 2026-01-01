@@ -11,13 +11,13 @@ from nat_encoder import encode_number, decode_number, SMALL_NUMBER_BITS
 ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length', 'small_number_bits', 'minimum_match_length']
 
 CONFIG = {
-    'run_name': 'hashed lempel ziv (key of 3)',
+    'run_name': 'hashed lempel ziv',
     'method': 'hashed_lempel_ziv',
-    'search_length': 1024,
-    'match_length': 1024,
+    'search_length': 2048,
+    'match_length': 2048,
     'notes': '',
     'small_number_bits': SMALL_NUMBER_BITS,
-    'minimum_match_length': 2
+    'minimum_match_length': 3
 }
 
 RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits', 'compression_ratio']
