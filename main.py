@@ -18,7 +18,7 @@ CONFIG = {
     'small_number_bits': SMALL_NUMBER_BITS
 }
 
-RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits']
+RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits', 'compression_ratio']
 
 SAVE_COMPRESSED = False  # Set to True if you want to save the decoded files
 
@@ -72,6 +72,9 @@ def main() -> None:
                 with open(decoded_filename, 'wb') as f:
                     f.write(decoded_bitarray.tobytes())
 
+            # Calculate compression ratio
+            compression_ratio = compressed_bits / original_bits
+
             # Store results
             result = {
                 'run_id': run_id,
@@ -79,12 +82,13 @@ def main() -> None:
                 'encode_time': encode_time,
                 'decode_time': decode_time,
                 'original_bits': original_bits,
-                'compressed_bits': compressed_bits
+                'compressed_bits': compressed_bits,
+                'compression_ratio': compression_ratio
             }
             results.append(result)
 
             print(f"  Encoded in {encode_time:.4f}s, decoded in {decode_time:.4f}s")
-            print(f"  Original: {original_bits} bits, Compressed: {compressed_bits} bits")
+            print(f"  Original: {original_bits} bits, Compressed: {compressed_bits} bits (ratio: {compression_ratio:.4f})")
 
     # Save results
     save_results(results)
