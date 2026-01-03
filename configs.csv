@@ -1,18 +1,28 @@
-run_id,timestamp,run_name,method,notes,search_length,match_length,small_number_bits,minimum_match_length
-20251218_235633,2025-12-18T23:56:33.657485,empty_test,read_write,check the runner functionality
-20251231_224139,2025-12-31T22:41:39.786687,basic search 256 back with match 32,basic_lempel_ziv,,256,32,2
-20251231_224621,2025-12-31T22:46:21.354503,basic search 256 back with match 256,basic_lempel_ziv,,256,256,2
-20251231_224711,2025-12-31T22:47:11.052576,basic search 256 back with match 256,basic_lempel_ziv,,256,256,2
-20251231_224801,2025-12-31T22:48:01.904501,basic search,basic_lempel_ziv,,1024,1024,2
-20251231_225008,2025-12-31T22:50:08.378857,basic search,basic_lempel_ziv,,1024,512,2
-20251231_225733,2025-12-31T22:57:33.158006,basic search,basic_lempel_ziv,duplicate of 20251231_225008 to see the time diff,1024,512,2
-20260101_191647,2026-01-01T19:16:47.159752,basic search with nat encoder const,basic_lempel_ziv,,512,512,3
-20260101_191814,2026-01-01T19:18:14.319033,basic search with nat encoder const,basic_lempel_ziv,,512,512,4
-20260101_191848,2026-01-01T19:18:48.797113,basic search with nat encoder const,basic_lempel_ziv,,512,512,5
-20260101_195900,2026-01-01T19:59:00.448848,hashed lempel ziv,hashed_lempel_ziv,,1024,1024,3,3
-20260101_195923,2026-01-01T19:59:23.159003,hashed lempel ziv,hashed_lempel_ziv,,1024,1024,3,2
-20260101_210515,2026-01-01T21:05:15.743070,hashed lempel ziv,hashed_lempel_ziv,,2048,2048,3,2
-20260101_210528,2026-01-01T21:05:28.260089,hashed lempel ziv ,hashed_lempel_ziv,,2048,2048,3,3
-20260101_210543,2026-01-01T21:05:43.172497,hashed lempel ziv ,hashed_lempel_ziv,,2048,2048,3,4
-20260101_210554,2026-01-01T21:05:54.696846,hashed lempel ziv ,hashed_lempel_ziv,,2048,2048,3,5
-20260101_210922,2026-01-01T21:09:22.704543,hashed lempel ziv,hashed_lempel_ziv,,2048,2048,3,1
+run_id,timestamp,method,notes,search_length,match_length,small_number_bits,minimum_match_length,symbol_bits
+20251218_235633,2025-12-18T23:56:33.657485,read_write,check the runner functionality,NULL,NULL,NULL,NULL,NULL
+20251231_224139,2025-12-31T22:41:39.786687,basic_lempel_ziv,,256,32,2,NULL,NULL
+20251231_224621,2025-12-31T22:46:21.354503,basic_lempel_ziv,,256,256,2,NULL,NULL
+20251231_224711,2025-12-31T22:47:11.052576,basic_lempel_ziv,,256,256,2,NULL,NULL
+20251231_224801,2025-12-31T22:48:01.904501,basic_lempel_ziv,,1024,1024,2,NULL,NULL
+20251231_225008,2025-12-31T22:50:08.378857,basic_lempel_ziv,,1024,512,2,NULL,NULL
+20251231_225733,2025-12-31T22:57:33.158006,basic_lempel_ziv,duplicate of 20251231_225008 to see the time diff,1024,512,2,NULL,NULL
+20260101_191647,2026-01-01T19:16:47.159752,basic_lempel_ziv,,512,512,3,NULL,NULL
+20260101_191814,2026-01-01T19:18:14.319033,basic_lempel_ziv,,512,512,4,NULL,NULL
+20260101_191848,2026-01-01T19:18:48.797113,basic_lempel_ziv,,512,512,5,NULL,NULL
+20260101_195900,2026-01-01T19:59:00.448848,hashed_lempel_ziv,,1024,1024,3,3,NULL
+20260101_195923,2026-01-01T19:59:23.159003,hashed_lempel_ziv,,1024,1024,3,2,NULL
+20260101_210515,2026-01-01T21:05:15.743070,hashed_lempel_ziv,,2048,2048,3,2,NULL
+20260101_210528,2026-01-01T21:05:28.260089,hashed_lempel_ziv,,2048,2048,3,3,NULL
+20260101_210543,2026-01-01T21:05:43.172497,hashed_lempel_ziv,,2048,2048,3,4,NULL
+20260101_210554,2026-01-01T21:05:54.696846,hashed_lempel_ziv,,2048,2048,3,5,NULL
+20260101_210922,2026-01-01T21:09:22.704543,hashed_lempel_ziv,,2048,2048,3,1,NULL
+20260101_221635,2026-01-01T22:16:35.731663,huffman_coding,,0,0,3,0,8
+20260103_205200,2026-01-03T20:52:00.600389,huffman_coding,,0,0,3,0,4
+20260103_205249,2026-01-03T20:52:49.275483,huffman_coding,,0,0,3,0,16
+20260103_205340,2026-01-03T20:53:40.900432,huffman_coding,,0,0,3,0,24
+20260103_205414,2026-01-03T20:54:14.563488,huffman_coding,,0,0,3,0,32
+20260103_205435,2026-01-03T20:54:35.041975,huffman_coding,,0,0,3,0,64
+20260103_205454,2026-01-03T20:54:54.997199,huffman_coding,,0,0,3,0,128
+20260103_213027,2026-01-03T21:30:27.964055,huffman_coding,after improve some of header,0,0,3,0,8
+20260103_213045,2026-01-03T21:30:45.528386,huffman_coding,after improve some of header,0,0,3,0,16
+20260103_215432,2026-01-03T21:54:32.346290,huffman_coding,after improve some of header,0,0,3,0,2
