@@ -8,22 +8,23 @@ from hashed_lampel_ziv import hashed_lempel_ziv
 from nat_encoder import encode_number, decode_number, SMALL_NUMBER_BITS
 
 # PAY ATTENTION: add new config keys at the end of this list
-ALL_CONFIG_KEYS = ['run_name', 'method', 'notes', 'search_length', 'match_length', 'small_number_bits', 'minimum_match_length']
+ALL_CONFIG_KEYS = ['method', 'notes', 'search_length', 'match_length', 'small_number_bits', 'minimum_match_length', 'symbol_bits']
 
 CONFIG = {
-    'run_name': 'hashed lempel ziv',
     'method': 'hashed_lempel_ziv',
     'search_length': 2048,
     'match_length': 2048,
     'notes': '',
     'small_number_bits': SMALL_NUMBER_BITS,
-    'minimum_match_length': 3
+    'minimum_match_length': 3,
+    'symbol_bits': 8
 }
 
 RESULT_KEYS = ['run_id', 'filename', 'encode_time', 'decode_time', 'original_bits', 'compressed_bits', 'compression_ratio']
 
 SAVE_COMPRESSED = False  # Set to True if you want to save the decoded files
 
+# TODO before submitting if we have 2-4 algo, use try except to avoid crash on one method
 
 def main() -> None:
     # Generate unique run ID based on timestamp
