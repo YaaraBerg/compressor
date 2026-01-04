@@ -184,7 +184,6 @@ if __name__ == "__main__":
     test_huffman_encode_decode_repeated_data()
     test_huffman_empty_data()
     test_huffman_single_byte()
-    test_basic_huffman_coding_wrapper()
     test_huffman_with_binary_data()
     test_huffman_compression_effectiveness()
 
