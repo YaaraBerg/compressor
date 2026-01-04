@@ -85,7 +85,7 @@ def test_huffman_encode_decode_simple():
     encoded = huffman_encode(data)
 
     # Decode
-    decoded = huffman_decode(encoded)
+    decoded = huffman_decode(encoded, symbol_bits=8)
 
     # Should match original
     assert data == decoded
@@ -102,7 +102,7 @@ def test_huffman_encode_decode_repeated_data():
     data.frombytes(test_string.encode())
 
     encoded = huffman_encode(data)
-    decoded = huffman_decode(encoded)
+    decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert data == decoded
 
@@ -116,7 +116,7 @@ def test_huffman_empty_data():
     empty_data = bitarray()
 
     encoded = huffman_encode(empty_data)
-    decoded = huffman_decode(encoded)
+    decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert empty_data == decoded
 
@@ -126,7 +126,7 @@ def test_huffman_single_byte():
     data = bitarray('10101010')  # Single byte
 
     encoded = huffman_encode(data)
-    decoded = huffman_decode(encoded)
+    decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert data == decoded
 
@@ -143,7 +143,7 @@ def test_huffman_with_binary_data():
 
     for data in test_cases:
         encoded = huffman_encode(data)
-        decoded = huffman_decode(encoded)
+        decoded = huffman_decode(encoded, symbol_bits=8)
         assert data == decoded, f"Failed for pattern: {data.to01()}"
 
 
@@ -169,8 +169,8 @@ def test_huffman_compression_effectiveness():
 
     # Repetitive should compress better (though small data has overhead)
     # This is more of an informational test
-    assert huffman_decode(encoded_rep) == repetitive_data
-    assert huffman_decode(encoded_div) == diverse_data
+    assert huffman_decode(encoded_rep, symbol_bits=8) == repetitive_data
+    assert huffman_decode(encoded_div, symbol_bits=8) == diverse_data
 
 
 if __name__ == "__main__":
