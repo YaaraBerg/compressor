@@ -29,3 +29,9 @@ run_id,timestamp,method,notes,search_length,match_length,small_number_bits,minim
 20260104_210421,2026-01-04T21:04:21.644344,hashed_lempel_ziv,Prefer later matches,1024,1024,3,2,8
 20260104_210633,2026-01-04T21:06:33.818405,hashed_lempel_ziv,Prefer later matches,1024,1024,3,3,8
 20260104_210700,2026-01-04T21:07:00.131432,hashed_lempel_ziv,Prefer later matches,1024,1024,3,4,8
+20260104_225541,2026-01-04T22:55:41.888975,dynamic_lempel_ziv_encoder,,2048,2048,3,3,8
+20260104_225608,2026-01-04T22:56:08.359258,dynamic_lempel_ziv_encoder,,2048,2048,3,3,8
+20260104_230149,2026-01-04T23:01:49.157516,dynamic_lempel_ziv_encoder,,2048,2048,4,3,8
+20260104_230212,2026-01-04T23:02:12.380596,dynamic_lempel_ziv_encoder,,2048,2048,3,4,8
+20260104_230220,2026-01-04T23:02:20.837561,dynamic_lempel_ziv_encoder,,2048,2048,3,5,8
+20260104_230231,2026-01-04T23:02:31.077853,dynamic_lempel_ziv_encoder,,2048,2048,3,6,8
