@@ -34,6 +34,8 @@ def main():
         best_index = min(range(3), key=lambda i: len(options[i]) if options[i] is not None else float('inf'))
         # index - 2 bits
         data_with_header = int2ba(best_index, 2) + options[best_index]
+        print(f'finished encoding {data_file}, '
+              f'size {len(data_with_header)} bits (ratio {len(data_with_header)/len(data):.4f})')
         with open(result_file, 'wb') as f:
             f.write(data_with_header)
     elif operation == 'decode':
