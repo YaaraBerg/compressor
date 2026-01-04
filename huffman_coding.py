@@ -1,5 +1,5 @@
 import heapq
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, Tuple, Optional
 from bitarray import bitarray
 from collections import Counter
 
@@ -48,13 +48,17 @@ def build_huffman_tree(frequency_table: Dict[int, int]) -> Optional[HuffmanNode]
     """
     Build Huffman tree from frequency table.
     """
+    if len(frequency_table) == 1:
+        only_symbol = next(iter(frequency_table))
+        only_node = HuffmanNode(symbol=only_symbol, frequency=frequency_table[only_symbol])
+        return HuffmanNode(frequency=only_node.frequency, left=only_node)
+    
     # Create a min-heap with leaf nodes
     heap = []
     for symbol, freq in frequency_table.items():
         node = HuffmanNode(symbol=symbol, frequency=freq)
         heapq.heappush(heap, node)
 
-    # Build the tree bottom-up
     while len(heap) > 1:
         # Get two nodes with the lowest frequency
         left = heapq.heappop(heap)
@@ -91,9 +95,9 @@ def generate_huffman_codes(root: HuffmanNode) -> Dict[int, str]:
     return codes
 
 
-def serialize_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarray:
+def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarray:
     """
-    Serialize the Huffman tree to a bitarray for storage.
+    Encode the Huffman tree into a bitarray recursively.
     Uses a simple format:
     - Internal node: bit 0
     - Leaf node: bit 1 followed by symbol_bits representing the symbol value
@@ -103,7 +107,7 @@ def serialize_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarra
 
     result = bitarray()
 
-    def serialize_node(node: HuffmanNode):
+    def encode_huffman_node(node: HuffmanNode):
         if node.is_leaf():
             result.append(1)  # Leaf marker
             symbol_bits_str = f'{node.symbol:0{symbol_bits}b}'  # Add the symbol as {symbol_bits} bits
@@ -111,33 +115,33 @@ def serialize_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarra
         else:
             result.append(0)  # Internal node marker
             if node.left:
-                serialize_node(node.left)
+                encode_huffman_node(node.left)
             if node.right:
-                serialize_node(node.right)
+                encode_huffman_node(node.right)
 
-    serialize_node(root)
+    encode_huffman_node(root)
     return result
 
 
-def deserialize_tree(data: bitarray, symbol_bits: int = 8) -> Tuple[Optional[HuffmanNode], int]:
+def decode_huffman_tree(data: bitarray, symbol_bits: int = 8) -> Tuple[Optional[HuffmanNode], int]:
     """
-    Deserialize a Huffman tree from a bitarray.
+    Decode the Huffman tree from a bitarray recursively.
     """
     if len(data) == 0:
         return None, 0
 
-    def deserialize_node(pos: int) -> Tuple[HuffmanNode, int]:
+    def decode_huffman_node(pos: int) -> Tuple[HuffmanNode, int]:
 
         if data[pos]:  # Leaf
             symbol_chunk = data[pos + 1:pos + 1 + symbol_bits]
             symbol = int(symbol_chunk.to01(), 2)
             return HuffmanNode(symbol=symbol), pos + 1 + symbol_bits
         else:  # Internal node
-            left_node, new_pos = deserialize_node(pos + 1)
-            right_node, final_pos = deserialize_node(new_pos)
+            left_node, new_pos = decode_huffman_node(pos + 1)
+            right_node, final_pos = decode_huffman_node(new_pos)
             return HuffmanNode(left=left_node, right=right_node), final_pos
 
-    root, consumed = deserialize_node(0)
+    root, consumed = decode_huffman_node(0)
     return root, consumed
 
 
@@ -159,13 +163,13 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
     # Store symbol_bits
     result.extend(bitarray(f'{symbol_bits:0{SYMBOL_BITS_FIELD}b}'))
 
-    # Serialize the tree (calc the tree size and insert in the header)
-    serialized_tree = serialize_tree(tree_root, symbol_bits)
-    tree_size = len(serialized_tree)
+    # encode the tree (calc the tree size and insert in the header)
+    encoded_tree = encode_huffman_tree(tree_root, symbol_bits)
+    tree_size = len(encoded_tree)
     if tree_size >= (1 << TREE_SIZE_FIELD_BITS):
         raise ValueError(f"Tree too large: {tree_size} bits")
     result.extend(bitarray(f'{tree_size:0{TREE_SIZE_FIELD_BITS}b}'))
-    result.extend(serialized_tree)
+    result.extend(encoded_tree)
 
     # Store original data length in BYTES
     original_length_bytes = len(data) // 8
@@ -175,8 +179,7 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
     for i in range(0, len(data), symbol_bits):
         symbol_chunk = data[i:i + symbol_bits]
         symbol_value = int(symbol_chunk.to01(), 2)
-        if symbol_value in codes:
-            result.extend(bitarray(codes[symbol_value]))
+        result.extend(bitarray(codes[symbol_value]))
 
     return result
 
@@ -192,13 +195,13 @@ def huffman_decode(compressed_data: bitarray) -> bitarray:
     symbol_bits_data = compressed_data[:SYMBOL_BITS_FIELD]
     symbol_bits = int(symbol_bits_data.to01(), 2)
 
-    # Read tree size and serialized tree
+    # Read tree size and decode tree
     tree_size_bits = compressed_data[SYMBOL_BITS_FIELD:SYMBOL_BITS_FIELD + TREE_SIZE_FIELD_BITS]
     tree_size = int(tree_size_bits.to01(), 2)
     tree_start = SYMBOL_BITS_FIELD + TREE_SIZE_FIELD_BITS
     tree_end = tree_start + tree_size
     tree_data = compressed_data[tree_start:tree_end]
-    tree_root, _ = deserialize_tree(tree_data, symbol_bits)
+    tree_root, _ = decode_huffman_tree(tree_data, symbol_bits)
 
     # Read original data length in BYTES
     original_length_bits_field = compressed_data[tree_end:tree_end + LENGTH_FIELD_BITS]
