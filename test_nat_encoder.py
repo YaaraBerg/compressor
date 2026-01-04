@@ -1,5 +1,5 @@
 from bitarray import bitarray
-from nat_encoder import encode_number, decode_number
+from nat_encoder import encode_number, decode_number, SMALL_NUMBER_BITS
 
 def test_small_numbers():
     arr = bitarray()
@@ -19,6 +19,19 @@ def test_multiple_small_nums():
     assert decode_number(arr) == 3
     assert len(arr) == 0
 
+def test_boundary_numbers():
+    """Test the boundary between small and large numbers"""
+    arr = bitarray()
+    # Largest small number: (2^SMALL_NUMBER_BITS - 1)
+    max_small = (1 << SMALL_NUMBER_BITS) - 1
+    # Smallest large number: 2^SMALL_NUMBER_BITS
+    min_large = 1 << SMALL_NUMBER_BITS
+
+    encode_number(arr, max_small)
+    encode_number(arr, min_large)
+    assert decode_number(arr) == max_small
+    assert decode_number(arr) == min_large
+    assert len(arr) == 0
 
 def test_big_number():
     arr = bitarray()
@@ -26,8 +39,3 @@ def test_big_number():
     assert decode_number(arr) == 1000
     assert len(arr) == 0
 
-def test_8():
-    arr = bitarray()
-    encode_number(arr, 8)
-    assert decode_number(arr) == 8
-    assert len(arr) == 0
