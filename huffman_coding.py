@@ -4,7 +4,7 @@ from bitarray import bitarray
 from collections import Counter
 
 LENGTH_FIELD_BITS = 17    # Store length in BYTES
-TREE_SIZE_FIELD_BITS = 16 # Tree size in bits: 2^16 = 64KB max tree # TODO maybe we can lower it
+TREE_SIZE_FIELD_BITS = 16 # Tree size in bits: 2^16 = 64KB max tree
 
 class HuffmanNode:
     """Node class for building the Huffman tree"""
@@ -24,7 +24,7 @@ class HuffmanNode:
         return self.left is None and self.right is None
 
 
-def build_frequency_table(data: bitarray, symbol_bits: int = 8) -> Dict[int, int]:
+def build_frequency_table(data: bitarray, symbol_bits: int) -> Dict[int, int]:
     """
     Build frequency table for symbols in the input data.
     """
@@ -93,7 +93,7 @@ def generate_symbol_translation(root: HuffmanNode) -> Dict[int, str]:
     return symbol_translation
 
 
-def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarray:
+def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int) -> bitarray:
     """
     Encode the Huffman tree into a bitarray recursively.
     Uses a simple format:
@@ -121,7 +121,7 @@ def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bi
     return result
 
 
-def decode_huffman_tree(data: bitarray, symbol_bits: int = 8) -> Tuple[Optional[HuffmanNode], int]:
+def decode_huffman_tree(data: bitarray, symbol_bits: int) -> Tuple[Optional[HuffmanNode], int]:
     """
     Decode the Huffman tree from a bitarray recursively.
     """
@@ -145,7 +145,7 @@ def decode_huffman_tree(data: bitarray, symbol_bits: int = 8) -> Tuple[Optional[
     return root, consumed
 
 
-def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
+def huffman_encode(data: bitarray, symbol_bits: int) -> bitarray:
     """
     Encode data using Huffman coding with configurable symbol size.
 
@@ -206,7 +206,7 @@ def decode_symbols_from_tree(encoded_data: bitarray, tree_root: HuffmanNode,
     return result
 
 
-def huffman_decode(compressed_data: bitarray, symbol_bits: int = 8) -> bitarray:
+def huffman_decode(compressed_data: bitarray, symbol_bits: int) -> bitarray:
     """
     Decode Huffman-encoded data with configurable symbol size.
     """
