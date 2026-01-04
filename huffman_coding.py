@@ -5,8 +5,6 @@ from collections import Counter
 
 LENGTH_FIELD_BITS = 17    # Store length in BYTES
 TREE_SIZE_FIELD_BITS = 16 # Tree size in bits: 2^16 = 64KB max tree # TODO maybe we can lower it
-SYMBOL_BITS_FIELD = 6     # Symbol size: 2^6 = 64 max (covers 1-32 bit symbols)  
-# TODO SYMBOL_BITS_FIELD only relevant if we want to run more than one param in the algo!
 
 class HuffmanNode:
     """Node class for building the Huffman tree"""
@@ -152,7 +150,7 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
     Encode data using Huffman coding with configurable symbol size.
 
     File format:
-    [Symbol_bits: 8 bits][Tree_size: 24 bits][Tree_data][Original_length_bytes: 20 bits][Encoded_data]
+    [Tree_size: 16 bits][Tree_data][Original_length_bytes: 17 bits][Encoded_data]
     """
     if len(data) == 0:
         return bitarray()
@@ -161,9 +159,6 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
     tree_root = build_huffman_tree(freq_table)
     symbol_translation = generate_symbol_translation(tree_root)
     result = bitarray()
-
-    # Store symbol_bits
-    result.extend(bitarray(f'{symbol_bits:0{SYMBOL_BITS_FIELD}b}'))
 
     # encode the tree (calc the tree size and insert in the header)
     encoded_tree = encode_huffman_tree(tree_root, symbol_bits)
@@ -211,21 +206,17 @@ def decode_symbols_from_tree(encoded_data: bitarray, tree_root: HuffmanNode,
     return result
 
 
-def huffman_decode(compressed_data: bitarray) -> bitarray:
+def huffman_decode(compressed_data: bitarray, symbol_bits: int = 8) -> bitarray:
     """
     Decode Huffman-encoded data with configurable symbol size.
     """
     if len(compressed_data) == 0:
         return bitarray()
 
-    # read symbol_bits param
-    symbol_bits_data = compressed_data[:SYMBOL_BITS_FIELD]
-    symbol_bits = int(symbol_bits_data.to01(), 2)
-
     # Read tree size and decode tree
-    tree_size_bits = compressed_data[SYMBOL_BITS_FIELD:SYMBOL_BITS_FIELD + TREE_SIZE_FIELD_BITS]
+    tree_size_bits = compressed_data[:TREE_SIZE_FIELD_BITS]
     tree_size = int(tree_size_bits.to01(), 2)
-    tree_start = SYMBOL_BITS_FIELD + TREE_SIZE_FIELD_BITS
+    tree_start = TREE_SIZE_FIELD_BITS
     tree_end = tree_start + tree_size
     tree_data = compressed_data[tree_start:tree_end]
     tree_root, _ = decode_huffman_tree(tree_data, symbol_bits)
