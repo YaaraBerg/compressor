@@ -1,7 +1,7 @@
 from bitarray import bitarray
 from huffman_coding import (
     build_frequency_table, build_huffman_tree, generate_huffman_codes,
-    huffman_encode, huffman_decode, serialize_tree, deserialize_tree
+    huffman_encode, huffman_decode, encode_huffman_tree, decode_huffman_tree
 )
 
 
@@ -60,10 +60,10 @@ def test_tree_serialization():
     original_root = build_huffman_tree(freq_table)
 
     # Serialize
-    serialized = serialize_tree(original_root)
+    serialized = encode_huffman_tree(original_root)
 
     # Deserialize
-    deserialized_root, consumed = deserialize_tree(serialized)
+    deserialized_root, consumed = decode_huffman_tree(serialized)
 
     # Check that consumed bits match serialized length
     assert consumed == len(serialized)
