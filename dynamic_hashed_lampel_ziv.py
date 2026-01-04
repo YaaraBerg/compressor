@@ -3,14 +3,14 @@ from bitarray import bitarray
 from nat_encoder import encode_number, decode_number
 
 
-def encoder_better_lempel_ziv(data: bitarray, **kwargs) -> bitarray:
+def dynamic_lempel_ziv_encoder(data: bitarray, **kwargs) -> bitarray:
     """
-    Compresses a bitarray using Lempel-Ziv compression with nat encoder.
+    Compresses a bitarray using an improved version of Lempel-Ziv compression with nat encoder.
     """
     if len(data) == 0:
         return bitarray()
 
-    lz_list = better_lempel_ziv(data, **kwargs)
+    lz_list = dynamic_lempel_ziv(data, **kwargs)
     result = bitarray()
     for cur_tuple in lz_list:
         if len(cur_tuple) == 1:
@@ -25,7 +25,7 @@ def encoder_better_lempel_ziv(data: bitarray, **kwargs) -> bitarray:
     return result
 
 
-def decoder_better_lempel_ziv(compressed_data: bitarray, **kwargs) -> bitarray:
+def dynamic_lempel_ziv_decoder(compressed_data: bitarray, **kwargs) -> bitarray:
     """
     Decompresses a bitarray that was compressed with the byte-level encoder function.
     """
@@ -46,12 +46,14 @@ def decoder_better_lempel_ziv(compressed_data: bitarray, **kwargs) -> bitarray:
             length = decode_number(data_copy)
             lz_list.append((offset, length))
 
-    return better_convert_lampel_ziv_list_to_binarray(lz_list)
+    return reverse_dynamic_lempel_ziv(lz_list)
 
 
-def better_lempel_ziv(data: bitarray, search_length: int, match_length: int, minimum_match_length: int, **kwargs) -> List[Union[Tuple[int, int], Tuple[bitarray]]]:
+def dynamic_lempel_ziv(data: bitarray, search_length: int, match_length: int, minimum_match_length: int, **kwargs) \
+        -> List[Union[Tuple[int, int], Tuple[bitarray]]]:
     """
-    Lempel-Ziv compression on a bitarray using hashed table
+    The Lempel-Ziv tuples are stored as either (offset, length) pairs or literal bytes.
+    Uses a hash table to find matches efficiently.
     """
     byte_count = len(data) // 8
     result = []
@@ -99,7 +101,7 @@ def better_lempel_ziv(data: bitarray, search_length: int, match_length: int, min
     return result
 
 
-def better_convert_lampel_ziv_list_to_binarray(lz_list: List[Union[Tuple[int, int], Tuple[bitarray]]]) -> bitarray:
+def reverse_dynamic_lempel_ziv(lz_list: List[Union[Tuple[int, int], Tuple[bitarray]]]) -> bitarray:
     """
     Converts a list of Lempel-Ziv tuples back into a bitarray format
     """
