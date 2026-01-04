@@ -130,9 +130,11 @@ def decode_huffman_tree(data: bitarray, symbol_bits: int = 8) -> Tuple[Optional[
     if len(data) == 0:
         return None, 0
 
-    def decode_huffman_node(pos: int) -> Tuple[HuffmanNode, int]:
+    def decode_huffman_node(pos: int) -> Tuple[Optional[HuffmanNode], int]:
+        if len(data) == pos:
+            return None, pos
 
-        if data[pos]:  # Leaf
+        if data[pos] == 1:  # Leaf
             symbol_chunk = data[pos + 1:pos + 1 + symbol_bits]
             symbol = int(symbol_chunk.to01(), 2)
             return HuffmanNode(symbol=symbol), pos + 1 + symbol_bits
