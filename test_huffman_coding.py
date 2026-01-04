@@ -11,7 +11,7 @@ def test_frequency_table():
     data = bitarray()
     data.frombytes(b"hello")
 
-    freq_table = build_frequency_table(data)
+    freq_table = build_frequency_table(data, symbol_bits=8)
 
     # 'h'=104, 'e'=101, 'l'=108, 'o'=111
     expected = {104: 1, 101: 1, 108: 2, 111: 1}
@@ -60,10 +60,10 @@ def test_tree_serialization():
     original_root = build_huffman_tree(freq_table)
 
     # Serialize
-    serialized = encode_huffman_tree(original_root)
+    serialized = encode_huffman_tree(original_root, symbol_bits=8)
 
     # Deserialize
-    deserialized_root, consumed = decode_huffman_tree(serialized)
+    deserialized_root, consumed = decode_huffman_tree(serialized, symbol_bits=8)
 
     # Check that consumed bits match serialized length
     assert consumed == len(serialized)
@@ -82,7 +82,7 @@ def test_huffman_encode_decode_simple():
     data.frombytes(test_string.encode())
 
     # Encode
-    encoded = huffman_encode(data)
+    encoded = huffman_encode(data, symbol_bits=8)
 
     # Decode
     decoded = huffman_decode(encoded, symbol_bits=8)
@@ -101,7 +101,7 @@ def test_huffman_encode_decode_repeated_data():
     data = bitarray()
     data.frombytes(test_string.encode())
 
-    encoded = huffman_encode(data)
+    encoded = huffman_encode(data, symbol_bits=8)
     decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert data == decoded
@@ -115,7 +115,7 @@ def test_huffman_empty_data():
     """Test with empty data"""
     empty_data = bitarray()
 
-    encoded = huffman_encode(empty_data)
+    encoded = huffman_encode(empty_data, symbol_bits=8)
     decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert empty_data == decoded
@@ -125,7 +125,7 @@ def test_huffman_single_byte():
     """Test with single byte"""
     data = bitarray('10101010')  # Single byte
 
-    encoded = huffman_encode(data)
+    encoded = huffman_encode(data, symbol_bits=8)
     decoded = huffman_decode(encoded, symbol_bits=8)
 
     assert data == decoded
@@ -142,7 +142,7 @@ def test_huffman_with_binary_data():
     ]
 
     for data in test_cases:
-        encoded = huffman_encode(data)
+        encoded = huffman_encode(data, symbol_bits=8)
         decoded = huffman_decode(encoded, symbol_bits=8)
         assert data == decoded, f"Failed for pattern: {data.to01()}"
 
@@ -154,14 +154,14 @@ def test_huffman_compression_effectiveness():
     repetitive_data = bitarray()
     repetitive_data.frombytes(b"aaaaaaaaaa" * 10)
 
-    encoded_rep = huffman_encode(repetitive_data)
+    encoded_rep = huffman_encode(repetitive_data, symbol_bits=8)
     rep_ratio = len(encoded_rep) / len(repetitive_data)
 
     # Random-like data - should not compress well
     diverse_data = bitarray()
     diverse_data.frombytes(b"abcdefghijklmnopqrstuvwxyz" * 3)
 
-    encoded_div = huffman_encode(diverse_data)
+    encoded_div = huffman_encode(diverse_data, symbol_bits=8)
     div_ratio = len(encoded_div) / len(diverse_data)
 
     print(f"Repetitive data compression ratio: {rep_ratio:.4f}")
