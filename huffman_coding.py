@@ -52,7 +52,7 @@ def build_huffman_tree(frequency_table: Dict[int, int]) -> Optional[HuffmanNode]
         only_symbol = next(iter(frequency_table))
         only_node = HuffmanNode(symbol=only_symbol, frequency=frequency_table[only_symbol])
         return HuffmanNode(frequency=only_node.frequency, left=only_node)
-    
+
     # Create a min-heap with leaf nodes
     heap = []
     for symbol, freq in frequency_table.items():
@@ -73,26 +73,26 @@ def build_huffman_tree(frequency_table: Dict[int, int]) -> Optional[HuffmanNode]
     return heap[0]  # tree root
 
 
-def generate_huffman_codes(root: HuffmanNode) -> Dict[int, str]:
+def generate_symbol_translation(root: HuffmanNode) -> Dict[int, str]:
     """
-    Generate Huffman codes from the tree.
+    Generate symbol mapping from the huffman tree.
     """
     if root is None:
         return {}
 
-    codes = {}
+    symbol_translation = {}
 
-    def traverse(node: HuffmanNode, code: str = ""):
+    def traverse(node: HuffmanNode, str_path: str = ""):
         if node.is_leaf():
-            codes[node.symbol] = code if code else "0"
+            symbol_translation[node.symbol] = str_path if str_path else "0"
         else:
             if node.left:
-                traverse(node.left, code + "0")
+                traverse(node.left, str_path + "0")
             if node.right:
-                traverse(node.right, code + "1")
+                traverse(node.right, str_path + "1")
 
     traverse(root)
-    return codes
+    return symbol_translation
 
 
 def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int = 8) -> bitarray:
@@ -159,7 +159,7 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
 
     freq_table = build_frequency_table(data, symbol_bits)
     tree_root = build_huffman_tree(freq_table)
-    codes = generate_huffman_codes(tree_root)
+    symbol_translation = generate_symbol_translation(tree_root)
     result = bitarray()
 
     # Store symbol_bits
@@ -181,7 +181,32 @@ def huffman_encode(data: bitarray, symbol_bits: int = 8) -> bitarray:
     for i in range(0, len(data), symbol_bits):
         symbol_chunk = data[i:i + symbol_bits]
         symbol_value = int(symbol_chunk.to01(), 2)
-        result.extend(bitarray(codes[symbol_value]))
+        result.extend(bitarray(symbol_translation[symbol_value]))
+
+    return result
+
+
+def decode_symbols_from_tree(encoded_data: bitarray, tree_root: HuffmanNode,
+                           symbol_bits: int, original_length_bits: int) -> bitarray:
+    """
+    Decode symbols from encoded data using the huffman tree.
+    """
+    result = bitarray()
+    current_node = tree_root
+
+    for bit in encoded_data:
+        if bit == 0 and current_node.left:
+            current_node = current_node.left
+        elif bit == 1 and current_node.right:
+            current_node = current_node.right
+
+        if current_node.is_leaf():
+            symbol_bits_str = f'{current_node.symbol:0{symbol_bits}b}'
+            result.extend(bitarray(symbol_bits_str))
+            current_node = tree_root  # Reset to root
+
+            if len(result) >= original_length_bits:
+                break
 
     return result
 
@@ -212,29 +237,6 @@ def huffman_decode(compressed_data: bitarray) -> bitarray:
 
     # Decode the compressed content
     encoded_data = compressed_data[tree_end + LENGTH_FIELD_BITS:]
-
-    if tree_root is None:
-        return bitarray()
-
-    # Decode using the tree
-    result = bitarray()
-    current_node = tree_root
-
-    for bit in encoded_data:
-        # Traverse the tree
-        if bit == 0 and current_node.left:
-            current_node = current_node.left
-        elif bit == 1 and current_node.right:
-            current_node = current_node.right
-
-        # Check if we reached a leaf
-        if current_node.is_leaf():
-            symbol_bits_str = f'{current_node.symbol:0{symbol_bits}b}'
-            result.extend(bitarray(symbol_bits_str))
-            current_node = tree_root  # Reset to root
-
-            # Stop if we've decoded enough bits
-            if len(result) >= original_length_bits:
-                break
+    result = decode_symbols_from_tree(encoded_data, tree_root, symbol_bits, original_length_bits)
 
     return result[:original_length_bits]
