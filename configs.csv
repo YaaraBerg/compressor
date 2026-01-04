@@ -26,3 +26,6 @@ run_id,timestamp,method,notes,search_length,match_length,small_number_bits,minim
 20260103_213027,2026-01-03T21:30:27.964055,huffman_coding,after improve some of header,0,0,3,0,8
 20260103_213045,2026-01-03T21:30:45.528386,huffman_coding,after improve some of header,0,0,3,0,16
 20260103_215432,2026-01-03T21:54:32.346290,huffman_coding,after improve some of header,0,0,3,0,2
+20260104_210421,2026-01-04T21:04:21.644344,hashed_lempel_ziv,Prefer later matches,1024,1024,3,2,8
+20260104_210633,2026-01-04T21:06:33.818405,hashed_lempel_ziv,Prefer later matches,1024,1024,3,3,8
+20260104_210700,2026-01-04T21:07:00.131432,hashed_lempel_ziv,Prefer later matches,1024,1024,3,4,8
