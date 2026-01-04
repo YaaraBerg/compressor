@@ -29,14 +29,12 @@ def main():
         enc_plain = data
         options = [enc_huff8, enc_huff16, enc_plain]
         best_index = min(range(3), key=lambda i: len(options[i]) if options[i] is not None else float('inf'))
-        print(best_index)
         # index - 2 bits
         data_with_header = int2ba(best_index, 2) + options[best_index]
         with open(result_file, 'wb') as f:
             f.write(data_with_header)
     elif operation == 'decode':
         header = ba2int(data[:2])
-        print(header)
         body = data[2:]
         if header == 0:
             decoded = huffman_decode(body, 8)
