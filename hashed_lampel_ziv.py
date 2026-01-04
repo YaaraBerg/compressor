@@ -38,7 +38,7 @@ def hashed_lempel_ziv(data: bitarray, search_length: int, match_length: int, min
                                data[(j + length)*8:(j + length + 1)*8] == data[(i + length)*8:(i + length + 1)*8]):
                             length += 1
 
-                        if length > best_length:
+                        if length >= best_length: # Prefer later matches (for shorter offset)
                             best_length = length
                             best_offset = i - j        # Update hash table with current position
         for start_pos in range(max(0, i - minimum_match_length + 1), i + 1):
