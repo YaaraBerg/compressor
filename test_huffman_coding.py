@@ -1,6 +1,6 @@
 from bitarray import bitarray
 from huffman_coding import (
-    build_frequency_table, build_huffman_tree, generate_huffman_codes,
+    build_frequency_table, build_huffman_tree, generate_symbol_translation,
     huffman_encode, huffman_decode, encode_huffman_tree, decode_huffman_tree
 )
 
@@ -44,7 +44,7 @@ def test_huffman_codes_generation():
     # Simple tree with known structure
     freq_table = {65: 1, 66: 1}  # A, B with equal frequency
     root = build_huffman_tree(freq_table)
-    codes = generate_huffman_codes(root)
+    codes = generate_symbol_translation(root)
 
     assert len(codes) == 2
     assert 65 in codes and 66 in codes
@@ -69,8 +69,8 @@ def test_tree_serialization():
     assert consumed == len(serialized)
 
     # Generate codes from both trees and compare
-    original_codes = generate_huffman_codes(original_root)
-    deserialized_codes = generate_huffman_codes(deserialized_root)
+    original_codes = generate_symbol_translation(original_root)
+    deserialized_codes = generate_symbol_translation(deserialized_root)
 
     assert original_codes == deserialized_codes
 
