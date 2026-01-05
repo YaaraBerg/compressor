@@ -31,7 +31,7 @@ def main():
             enc_lampel_ziv = None
         enc_plain = data
         options = [enc_huff8, enc_huff16, enc_lampel_ziv, enc_plain]
-        best_index = min(range(3), key=lambda i: len(options[i]) if options[i] is not None else float('inf'))
+        best_index = min(range(4), key=lambda i: len(options[i]) if options[i] is not None else float('inf'))
         # index - 2 bits
         data_with_header = int2ba(best_index, 2) + options[best_index]
         print(f'finished encoding {data_file}, '
