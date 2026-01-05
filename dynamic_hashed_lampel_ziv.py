@@ -1,6 +1,10 @@
 from typing import List, Tuple, Dict, Union
 from bitarray import bitarray
+from bitarray.util import ba2int
 from nat_encoder import encode_number, decode_number
+from huffman_coding import tree_size_and_structure_encode, decode_huffman_tree
+
+TREE_SIZE_FIELD = 12
 
 
 def dynamic_lempel_ziv_encoder(data: bitarray, **kwargs) -> bitarray:
@@ -11,12 +15,12 @@ def dynamic_lempel_ziv_encoder(data: bitarray, **kwargs) -> bitarray:
         return bitarray()
 
     lz_list = dynamic_lempel_ziv(data, **kwargs)
-    result = bitarray()
+    result, symbol_translation = encode_huffman_tree_from_dynamic_lz_list(lz_list, symbol_bits=8)
     for cur_tuple in lz_list:
         if len(cur_tuple) == 1:
             result.extend('0') # Indicate that this is a literal byte
             next_byte = cur_tuple[0]
-            result.extend(next_byte)
+            result.extend(symbol_translation[ba2int(next_byte)])
         else:
             result.extend('1') # Indicate that this is a (offset, length) pair
             encode_number(result, cur_tuple[0])
@@ -34,14 +38,43 @@ def dynamic_lempel_ziv_decoder(compressed_data: bitarray, **kwargs) -> bitarray:
 
     lz_list = []
     data_copy = compressed_data.copy()
+    
+    tree_size_bits = compressed_data[:TREE_SIZE_FIELD]
+    tree_size = int(tree_size_bits.to01(), 2)
+    tree_start = TREE_SIZE_FIELD
+    tree_end = tree_start + tree_size
+    tree_data = data_copy[tree_start:tree_end]
+    root = decode_huffman_tree(tree_data, symbol_bits=8)
+    del data_copy[:tree_end]
+    
     while len(data_copy) > 0:
+        if len(data_copy) == 0:
+            break
+            
         flag = data_copy[0]
-        del data_copy[0]
-        if flag == 0:
-            next_byte = data_copy[:8]
-            del data_copy[:8]
-            lz_list.append((next_byte,))
-        else:
+        del data_copy[:1]
+        
+        if flag == 0:  # only symbol
+            current_node = root
+            bits_consumed = 0
+            
+            # traverse tree
+            for i in range(len(data_copy)):
+                bit = data_copy[i]
+                if bit == 0 and current_node.left:
+                    current_node = current_node.left
+                elif bit == 1 and current_node.right:
+                    current_node = current_node.right
+                
+                bits_consumed += 1
+                
+                if current_node.is_leaf():
+                    symbol_bits_str = f'{current_node.symbol:0{8}b}'
+                    symbol_bitarray = bitarray(symbol_bits_str)
+                    lz_list.append((symbol_bitarray,))
+                    del data_copy[:bits_consumed]
+                    break
+        else:  # (offset, length) pair
             offset = decode_number(data_copy)
             length = decode_number(data_copy)
             lz_list.append((offset, length))
@@ -110,7 +143,7 @@ def reverse_dynamic_lempel_ziv(lz_list: List[Union[Tuple[int, int], Tuple[bitarr
     for cur_tuple in lz_list:
         if len(cur_tuple) == 1:
             next_byte = cur_tuple[0]
-            result.extend(next_byte)
+            result.extend(bitarray(next_byte))
         else:
             offset, length = cur_tuple
             current_byte_count = len(result) // 8
@@ -120,3 +153,29 @@ def reverse_dynamic_lempel_ziv(lz_list: List[Union[Tuple[int, int], Tuple[bitarr
                 result.extend(source_byte_bits)
 
     return result
+
+def build_frequency_table_from_symbols_list(symbols_list: List[bitarray], symbol_bits: int) -> Dict[int, int]:
+    """
+    Build a frequency table from a list of symbols represented as bitarrays.
+    """
+    freq_table: Dict[int, int] = {}
+
+    for symbol_bits_array in symbols_list:
+        if len(symbol_bits_array) != symbol_bits:
+            raise ValueError(f"Symbol length mismatch: expected {symbol_bits}, got {len(symbol_bits_array)}")
+        symbol_value = int(symbol_bits_array.to01(), 2)
+        if symbol_value not in freq_table:
+            freq_table[symbol_value] = 0
+        freq_table[symbol_value] += 1
+
+    return freq_table
+
+
+def encode_huffman_tree_from_dynamic_lz_list(lz_list: List[Union[Tuple[int, int], Tuple[bitarray]]], symbol_bits: int) \
+        -> Tuple[bitarray, Dict[int, str]]:
+    """
+    Encode a Huffman tree from a dynamic Lempel-Ziv list (only for the synbols).
+    """
+    symbols_list = [cur_tuple[0] for cur_tuple in lz_list if len(cur_tuple) == 1]
+    freq_table = build_frequency_table_from_symbols_list(symbols_list, symbol_bits)
+    return tree_size_and_structure_encode(freq_table, symbol_bits)
