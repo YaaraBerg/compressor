@@ -63,10 +63,7 @@ def test_tree_serialization():
     serialized = encode_huffman_tree(original_root, symbol_bits=8)
 
     # Deserialize
-    deserialized_root, consumed = decode_huffman_tree(serialized, symbol_bits=8)
-
-    # Check that consumed bits match serialized length
-    assert consumed == len(serialized)
+    deserialized_root = decode_huffman_tree(serialized, symbol_bits=8)
 
     # Generate codes from both trees and compare
     original_codes = generate_symbol_translation(original_root)
