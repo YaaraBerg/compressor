@@ -2,9 +2,11 @@ from typing import List, Tuple, Dict, Union
 from bitarray import bitarray
 from bitarray.util import ba2int
 from nat_encoder import encode_number, decode_number
-from huffman_coding import tree_size_and_structure_encode, decode_huffman_tree
+from huffman_coding import tree_size_and_structure_encode, decode_huffman_tree, LENGTH_FIELD_BITS, \
+    TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL
 
-TREE_SIZE_FIELD = 12
+SYMBOL_BITS = 8
+TREE_SIZE_FIELD = TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL[SYMBOL_BITS]
 
 
 def dynamic_lempel_ziv_encoder(data: bitarray, **kwargs) -> bitarray:
@@ -15,7 +17,10 @@ def dynamic_lempel_ziv_encoder(data: bitarray, **kwargs) -> bitarray:
         return bitarray()
 
     lz_list = dynamic_lempel_ziv(data, **kwargs)
-    result, symbol_translation = encode_huffman_tree_from_dynamic_lz_list(lz_list, symbol_bits=8)
+    result, symbol_translation = encode_huffman_tree_from_dynamic_lz_list(lz_list, symbol_bits=SYMBOL_BITS)
+    original_length_bytes = len(data) // 8
+    result.extend(bitarray(f'{original_length_bytes:0{LENGTH_FIELD_BITS}b}'))
+
     for cur_tuple in lz_list:
         if len(cur_tuple) == 1:
             result.extend('0') # Indicate that this is a literal byte
@@ -36,21 +41,26 @@ def dynamic_lempel_ziv_decoder(compressed_data: bitarray, **kwargs) -> bitarray:
     if len(compressed_data) == 0:
         return bitarray()
 
-    lz_list = []
-    data_copy = compressed_data.copy()
-    
+    # Read tree size and tree data
     tree_size_bits = compressed_data[:TREE_SIZE_FIELD]
     tree_size = int(tree_size_bits.to01(), 2)
     tree_start = TREE_SIZE_FIELD
     tree_end = tree_start + tree_size
-    tree_data = data_copy[tree_start:tree_end]
-    root = decode_huffman_tree(tree_data, symbol_bits=8)
-    del data_copy[:tree_end]
-    
-    while len(data_copy) > 0:
-        if len(data_copy) == 0:
-            break
-            
+    tree_data = compressed_data[tree_start:tree_end]
+    root = decode_huffman_tree(tree_data, symbol_bits=SYMBOL_BITS)
+
+    # Read original length
+    original_length_start = tree_end
+    original_length_end = original_length_start + LENGTH_FIELD_BITS
+    original_length_bits_field = compressed_data[original_length_start:original_length_end]
+    original_length_bytes = int(original_length_bits_field.to01(), 2)
+
+    # Reconstructed length and reverse lampel ziv
+    lz_list = []
+    data_copy = compressed_data[original_length_end:].copy()
+    reconstructed_bytes = 0
+
+    while reconstructed_bytes < original_length_bytes:
         flag = data_copy[0]
         del data_copy[:1]
         
@@ -69,15 +79,17 @@ def dynamic_lempel_ziv_decoder(compressed_data: bitarray, **kwargs) -> bitarray:
                 bits_consumed += 1
                 
                 if current_node.is_leaf():
-                    symbol_bits_str = f'{current_node.symbol:0{8}b}'
+                    symbol_bits_str = f'{current_node.symbol:0{SYMBOL_BITS}b}'
                     symbol_bitarray = bitarray(symbol_bits_str)
                     lz_list.append((symbol_bitarray,))
                     del data_copy[:bits_consumed]
+                    reconstructed_bytes += 1
                     break
         else:  # (offset, length) pair
             offset = decode_number(data_copy)
             length = decode_number(data_copy)
             lz_list.append((offset, length))
+            reconstructed_bytes += length
 
     return reverse_dynamic_lempel_ziv(lz_list)
 
