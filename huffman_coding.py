@@ -4,7 +4,13 @@ from bitarray import bitarray
 from collections import Counter
 
 LENGTH_FIELD_BITS = 17    # Store length in BYTES
-TREE_SIZE_FIELD_BITS = 16 # Tree size in bits: 2^16 = 64KB max tree
+TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL = {
+    2: 6,
+    4: 8,
+    8: 12,
+    16: 16,
+    32: 20
+}
 
 class HuffmanNode:
     """Node class for building the Huffman tree"""
@@ -121,7 +127,7 @@ def encode_huffman_tree(root: Optional[HuffmanNode], symbol_bits: int) -> bitarr
     return result
 
 
-def decode_huffman_tree(data: bitarray, symbol_bits: int) -> Tuple[Optional[HuffmanNode], int]:
+def decode_huffman_tree(data: bitarray, symbol_bits: int) -> Optional[HuffmanNode]:
     """
     Decode the Huffman tree from a bitarray recursively.
     """
@@ -141,8 +147,8 @@ def decode_huffman_tree(data: bitarray, symbol_bits: int) -> Tuple[Optional[Huff
             right_node, final_pos = decode_huffman_node(new_pos)
             return HuffmanNode(left=left_node, right=right_node), final_pos
 
-    root, consumed = decode_huffman_node(0)
-    return root, consumed
+    root, _ = decode_huffman_node(0)
+    return root
 
 
 def huffman_encode(data: bitarray, symbol_bits: int) -> bitarray:
@@ -156,17 +162,7 @@ def huffman_encode(data: bitarray, symbol_bits: int) -> bitarray:
         return bitarray()
 
     freq_table = build_frequency_table(data, symbol_bits)
-    tree_root = build_huffman_tree(freq_table)
-    symbol_translation = generate_symbol_translation(tree_root)
-    result = bitarray()
-
-    # encode the tree (calc the tree size and insert in the header)
-    encoded_tree = encode_huffman_tree(tree_root, symbol_bits)
-    tree_size = len(encoded_tree)
-    if tree_size >= (1 << TREE_SIZE_FIELD_BITS):
-        raise ValueError(f"Tree too large: {tree_size} bits")
-    result.extend(bitarray(f'{tree_size:0{TREE_SIZE_FIELD_BITS}b}'))
-    result.extend(encoded_tree)
+    result, symbol_translation = tree_size_and_structure_encode(freq_table, symbol_bits)
 
     # Store original data length in BYTES
     original_length_bytes = len(data) // 8
@@ -181,8 +177,27 @@ def huffman_encode(data: bitarray, symbol_bits: int) -> bitarray:
     return result
 
 
+def tree_size_and_structure_encode(freq_table: Dict[int, int], symbol_bits: int) -> Tuple[bitarray, Dict[int, str]]:
+    """
+    Return the encoded tree size and structure along with symbol translation.
+    """
+    tree_size_field_bits = TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL[symbol_bits]
+    tree_root = build_huffman_tree(freq_table)
+    symbol_translation = generate_symbol_translation(tree_root)
+    result = bitarray()
+
+    # encode the tree (calc the tree size and insert in the header)
+    encoded_tree = encode_huffman_tree(tree_root, symbol_bits)
+    tree_size = len(encoded_tree)
+    if tree_size >= (1 << tree_size_field_bits):
+        raise ValueError(f"Tree too large: {tree_size} bits")
+    result.extend(bitarray(f'{tree_size:0{tree_size_field_bits}b}'))
+    result.extend(encoded_tree)
+    return result, symbol_translation
+
+
 def decode_symbols_from_tree(encoded_data: bitarray, tree_root: HuffmanNode,
-                           symbol_bits: int, original_length_bits: int) -> bitarray:
+                             symbol_bits: int, original_length_bits: int) -> bitarray:
     """
     Decode symbols from encoded data using the huffman tree.
     """
@@ -214,12 +229,12 @@ def huffman_decode(compressed_data: bitarray, symbol_bits: int) -> bitarray:
         return bitarray()
 
     # Read tree size and decode tree
-    tree_size_bits = compressed_data[:TREE_SIZE_FIELD_BITS]
+    tree_size_bits = compressed_data[:TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL[symbol_bits]]
     tree_size = int(tree_size_bits.to01(), 2)
-    tree_start = TREE_SIZE_FIELD_BITS
+    tree_start = TREE_SIZE_FIELD_BITS_BY_BIT_SIMBOL[symbol_bits]
     tree_end = tree_start + tree_size
     tree_data = compressed_data[tree_start:tree_end]
-    tree_root, _ = decode_huffman_tree(tree_data, symbol_bits)
+    tree_root = decode_huffman_tree(tree_data, symbol_bits)
 
     # Read original data length in BYTES
     original_length_bits_field = compressed_data[tree_end:tree_end + LENGTH_FIELD_BITS]
